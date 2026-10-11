@@ -16,23 +16,15 @@ live board that sorts messages as you type them.
 | Lab | Title | What you do | Time |
 |---|---|---|---|
 | 1 | Prerequisites | Install `uv`, `nvm`, Ollama; kick off the Strands Decider download | 20 min |
-| 🍕 | **Pizza & networking break** | Eat while the decider download finishes in the background | |
 | 2 | Ask the model a question | Call the decision model from the terminal, then from code | 10 min |
 | 3 | Ask three questions at once | Add urgency and spam checks; run the full sample set | 18 min |
 | 4 | Let your code decide | Turn answers + confidence into routing rules; hand off to a local LLM | 18 min |
 | 5 | The live board | Run the web dashboard that visualises your `decide()` function | 14 min |
 | 6 | Apply it to your own use case | Design a decision task for a problem from your own work | 10–15 min |
 
-Lab 1 is part of the session itself — don't assume anyone has these tools already. Kick
-off the Strands Decider download (a few GB) first thing in Lab 1, then do the rest of the
-installs; by the time everyone's eaten, it's usually done.
-
-Lab 6 is the point of the whole session — it's where you take the pattern home. If time's
-tight, it's the one to protect; everything else can be caught up from the checkpoints.
-
 ---
 
-## Lab 1: Prerequisites (20 min, then pizza)
+## Lab 1: Prerequisites (20 min)
 
 Three tools plus one multi-gigabyte download. The order below starts the slow download
 first, in its own terminal, so it runs in the background while you install everything
