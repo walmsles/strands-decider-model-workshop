@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Help desk sorter</title>
+<style>
+  :root {
+    --paper: #E7ECF1;
+    --slot: #F8FAFC;
+    --ink: #17212E;
+    --muted: #5A6777;
+    --line: #C9D2DC;
+    --bar: #2D5B87;
+    --amber: #C47604;
+    --amber-tint: #FBEFD9;
+    --good: #2E7D57;
+    --bad: #B03A3A;
+    --font: "Avenir Next", "Segoe UI Variable Text", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.45 var(--font); }
+  header { display: flex; flex-wrap: wrap; gap: 1.5rem 3rem; align-items: end; justify-content: space-between;
+           padding: 1.25rem 1.5rem 1rem; }
+  h1 { margin: 0; font-size: 1.9rem; font-weight: 700; letter-spacing: -0.01em; line-height: 1.1; }
+  .sub { margin: 0.25rem 0 0; color: var(--muted); }
+  .stats { display: flex; flex-wrap: wrap; gap: 0.5rem 2rem; margin: 0; }
+  .stats div { display: flex; flex-direction: column-reverse; }
+  .stats dt { color: var(--muted); font-size: 0.85rem; }
+  .stats dd { margin: 0; font-size: 1.6rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .controls { display: flex; flex-wrap: wrap; gap: 0.75rem 1.5rem; align-items: center;
+              padding: 0.75rem 1.5rem 1rem; border-bottom: 1px solid var(--line); }
+  form { display: flex; gap: 0.5rem; flex: 1 1 26rem; }
+  input[type=text] { flex: 1; min-width: 0; font: inherit; padding: 0.6rem 0.75rem;
+                     border: 1px solid var(--line); border-radius: 6px; background: #fff; color: var(--ink); }
+  button { font: inherit; font-weight: 600; padding: 0.6rem 1rem; border-radius: 6px; cursor: pointer;
+           border: 1px solid var(--ink); background: var(--ink); color: #fff; }
+  button.quiet { background: transparent; color: var(--ink); border-color: var(--line); }
+  :focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
+  .threshold { display: flex; align-items: center; gap: 0.75rem; }
+  .threshold label { font-weight: 600; }
+  .threshold output { font-weight: 700; font-variant-numeric: tabular-nums; color: var(--amber); min-width: 2.6em; font-size: 1.2rem; }
+  input[type=range] { width: 12rem; accent-color: var(--amber); }
+  .error { margin: 0.75rem 1.5rem 0; padding: 0.6rem 0.9rem; border-left: 4px solid var(--bad);
+           background: #fff; color: var(--bad); font-weight: 600; }
+  .error:empty { display: none; }
+  main { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(15rem, 1fr); gap: 0.75rem;
+         padding: 1rem 1.5rem 2rem; overflow-x: auto; }
+  section.lane { background: var(--slot); border: 1px solid var(--line); border-radius: 8px; padding: 0.75rem; min-height: 60vh; }
+  section.lane h2 { margin: 0 0 0.1rem; font-size: 1.1rem; }
+  section.lane .who { margin: 0 0 0.75rem; color: var(--muted); font-size: 0.85rem; }
+  section.escalated { background: var(--amber-tint); border-color: #E9C98F; }
+  section.spam { opacity: 0.8; }
+  .count { color: var(--muted); font-weight: 400; }
+  article { background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 0.65rem 0.75rem; margin-bottom: 0.6rem; }
+  article.arrived { animation: arrive 1.2s ease-out; }
+  @keyframes arrive { from { box-shadow: 0 0 0 3px var(--amber); } to { box-shadow: 0 0 0 3px transparent; } }
+  article p { margin: 0 0 0.5rem; }
+  .guess { display: flex; justify-content: space-between; font-size: 0.9rem; font-weight: 600; }
+  .bar { position: relative; height: 8px; background: #E3E8EE; border-radius: 4px; margin: 0.25rem 0 0.45rem; }
+  .bar span { position: absolute; inset: 0 auto 0 0; background: var(--bar); border-radius: 4px; }
+  .bar.under span { background: #8FA4BA; }
+  .bar i { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--amber); }
+  .meta { display: flex; flex-wrap: wrap; gap: 0.25rem 0.9rem; font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .ok { color: var(--good); font-weight: 600; }
+  .no { color: var(--bad); font-weight: 600; }
+  .note { margin: 0.4rem 0 0; font-size: 0.85rem; color: var(--ink); }
+  .reply { margin: 0.5rem 0 0; padding: 0.5rem 0.6rem; background: var(--amber-tint); border-radius: 4px; font-size: 0.9rem; }
+  .reply b { display: block; font-size: 0.8rem; color: var(--amber); }
+  .waiting { color: var(--muted); font-size: 0.9rem; }
+  .empty { color: var(--muted); font-size: 0.9rem; }
+  @media (prefers-reduced-motion: reduce) { article.arrived { animation: none; } }
+  @media (max-width: 640px) { header, .controls, main { padding-left: 1rem; padding-right: 1rem; } h1 { font-size: 1.5rem; } }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Help desk sorter</h1>
+    <p class="sub">A decision model sorts each message on this laptop. Your code decides what happens next.</p>
+  </div>
+  <dl class="stats">
+    <div><dt>Decisions by the model</dt><dd id="s-decisions">0</dd></div>
+    <div><dt>Average decision time</dt><dd id="s-ms">–</dd></div>
+    <div><dt>Sent to the LLM</dt><dd id="s-escalated">0</dd></div>
+    <div><dt>Average LLM time</dt><dd id="s-llm">–</dd></div>
+    <div><dt>Matches the sample labels</dt><dd id="s-correct">–</dd></div>
+  </dl>
+</header>
+
+<div class="controls">
+  <form id="send">
+    <input type="text" id="text" placeholder="Type a message from a student" aria-label="Message" autocomplete="off">
+    <button type="submit">Sort message</button>
+  </form>
+  <button class="quiet" id="samples">Send sample messages</button>
+  <button class="quiet" id="clear">Clear board</button>
+  <div class="threshold">
+    <label for="th">Confidence needed</label>
+    <input type="range" id="th" min="0.3" max="0.95" step="0.05">
+    <output id="th-out" for="th"></output>
+  </div>
+</div>
+
+<div class="error" id="error" role="alert"></div>
+<main id="lanes"></main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const seen = new Set();
+let threshold = 0.7, dragging = false;
+
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const title = (k) => k === "escalated" ? "Sent to the LLM" : k === "spam" ? "Spam"
+  : k.split("_").map((w, i) => w.length <= 2 ? w.toUpperCase() : i ? w : w[0].toUpperCase() + w.slice(1)).join(" ");
+const who = (k) => k === "escalated" ? "Model wasn't sure enough. The LLM drafts a reply."
+  : k === "spam" ? "Blocked, nobody needs to see these" : "Sorted by the model";
+const urgencyWord = (u) => u < 0.67 ? "low" : u < 1.34 ? "medium" : "high";
+
+function card(c) {
+  const isNew = !seen.has(c.id); seen.add(c.id);
+  const cls = isNew ? ' class="arrived"' : "";
+  if (c.status !== "done") {
+    return `<article${cls}><p>${esc(c.text)}</p><span class="waiting">${c.status === "error" ? "Couldn't sort this one" : "Sorting…"}</span></article>`;
+  }
+  const conf = c.confidence, pct = Math.round(conf * 100);
+  const label = c.spam > 0.5 ? "spam" : c.team;
+  let check = "";
+  if (c.expected) check = label === c.expected
+    ? `<span class="ok" aria-label="matches label">✓ matches label</span>`
+    : `<span class="no">✗ label says ${esc(title(c.expected))}</span>`;
+  let reply = "";
+  if (c.lane === "escalated") {
+    if (!("reply" in c)) reply = `<p class="reply"><b>LLM</b>Drafting a reply…</p>`;
+    else if (c.reply) reply = `<p class="reply"><b>LLM draft, ${(c.reply_ms / 1000).toFixed(1)} s</b>${esc(c.reply)}</p>`;
+    else reply = `<p class="reply"><b>LLM</b>No LLM running. This message would go to the LLM.</p>`;
+  }
+  if (c.lane === "spam") {
+    return `<article${cls}><p>${esc(c.text)}</p>
+      <div class="guess"><span>Spam</span><span>${c.spam.toFixed(2)}</span></div>
+      <div class="bar" role="img" aria-label="spam probability ${Math.round(c.spam * 100)}%"><span style="width:${Math.round(c.spam * 100)}%"></span></div>
+      <div class="meta"><span>${Math.round(c.ms)} ms</span>${check}</div></article>`;
+  }
+  return `<article${cls}>
+    <p>${esc(c.text)}</p>
+    <div class="guess"><span>${c.lane === "escalated" ? "Best guess: " : ""}${esc(title(c.team))}</span><span>${conf.toFixed(2)}</span></div>
+    <div class="bar${conf < threshold ? " under" : ""}" role="img" aria-label="confidence ${pct}%"><span style="width:${pct}%"></span><i style="left:${threshold * 100}%"></i></div>
+    <div class="meta"><span>urgency ${urgencyWord(c.urgency)}</span><span>spam ${Math.round(c.spam * 100)}%</span><span>${Math.round(c.ms)} ms</span>${check}</div>
+    ${c.note ? `<p class="note">${esc(c.note)}</p>` : ""}
+    ${reply}
+  </article>`;
+}
+
+function render(state) {
+  if (!dragging) { threshold = state.threshold; $("th").value = threshold; $("th-out").textContent = threshold.toFixed(2); }
+  $("error").textContent = state.error || "";
+  const s = state.stats;
+  $("s-decisions").textContent = s.decisions;
+  $("s-ms").textContent = s.decisions ? `${Math.round(s.decision_ms)} ms` : "–";
+  $("s-escalated").textContent = s.escalated;
+  $("s-llm").textContent = s.llm_ms ? `${(s.llm_ms / 1000).toFixed(1)} s` : "–";
+  $("s-correct").textContent = s.scored ? `${s.correct} of ${s.scored}` : "–";
+  const byLane = Object.fromEntries(state.lanes.map((l) => [l, []]));
+  const pending = [];
+  for (const c of state.cards) (c.status === "done" && byLane[c.lane] ? byLane[c.lane] : pending).push(c);
+  if (pending.length) byLane[state.lanes[0]] = pending.concat(byLane[state.lanes[0]]);
+  $("lanes").innerHTML = state.lanes.map((l) => `
+    <section class="lane ${l}" aria-label="${esc(title(l))}">
+      <h2>${esc(title(l))} <span class="count">${byLane[l].length || ""}</span></h2>
+      <p class="who">${who(l)}</p>
+      ${byLane[l].map(card).join("") || (l === state.lanes[0] && !state.cards.length
+        ? `<p class="empty">No messages yet. Type one above, or send the sample messages.</p>` : "")}
+    </section>`).join("");
+}
+
+async function poll() {
+  try { render(await (await fetch("/api/state")).json()); }
+  catch { $("error").textContent = "The board server stopped. Restart it with: uv run board.py"; }
+  setTimeout(poll, 400);
+}
+const post = (path, body = {}) => fetch(path, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
+
+$("send").addEventListener("submit", (e) => { e.preventDefault(); const t = $("text").value.trim(); if (t) post("/api/message", {text: t}); $("text").value = ""; });
+$("samples").addEventListener("click", () => post("/api/samples"));
+$("clear").addEventListener("click", () => { seen.clear(); post("/api/clear"); });
+$("th").addEventListener("input", (e) => {
+  dragging = true; threshold = parseFloat(e.target.value); $("th-out").textContent = threshold.toFixed(2);
+  document.querySelectorAll(".bar i").forEach((i) => i.style.left = `${threshold * 100}%`);
+});
+$("th").addEventListener("change", (e) => { post("/api/threshold", {value: parseFloat(e.target.value)}); setTimeout(() => dragging = false, 600); });
+poll();
+</script>
+</body>
+</html>

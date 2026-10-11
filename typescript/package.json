@@ -1,0 +1,7 @@
+{
+  "name": "decider-workshop",
+  "private": true,
+  "type": "module",
+  "description": "Build a local AI agent with a decision model. Run files directly with Node 24 or newer: node triage.ts",
+  "engines": { "node": ">=22.22" }
+}

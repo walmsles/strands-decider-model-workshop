@@ -1,0 +1,22 @@
+[
+  {"text": "I can't log in to the student portal, it says my password has expired.", "expected": "it_support"},
+  {"text": "How do I swap my Tuesday tutorial to the Thursday one?", "expected": "enrolments"},
+  {"text": "Can I extend my loan on Intro to Algorithms? It's due back tomorrow.", "expected": "library"},
+  {"text": "Wifi in building B drops out every ten minutes during lectures.", "expected": "it_support"},
+  {"text": "I missed the census date. Will I still be charged for the subject?", "expected": "enrolments"},
+  {"text": "Are there any quiet study rooms free tonight?", "expected": "library"},
+  {"text": "Exams are coming up and I'm feeling really overwhelmed. Who can I talk to?", "expected": "wellbeing"},
+  {"text": "CONGRATULATIONS!!! You have won a free iPad. Click here to claim your prize now.", "expected": "spam"},
+  {"text": "Your student account will be suspended today. Verify your bank details at this link.", "expected": "spam"},
+  {"text": "My laptop won't connect to the projector in lab 3.", "expected": "it_support"},
+  {"text": "I need a letter confirming I'm enrolled full time for my visa application.", "expected": "enrolments"},
+  {"text": "I returned a book last week but my account still says it's overdue.", "expected": "library"},
+  {"text": "Two-factor codes aren't arriving on my phone, so I'm locked out of email.", "expected": "it_support"},
+  {"text": "Is it too late to drop a subject without getting a fail on my record?", "expected": "enrolments"},
+  {"text": "I've been sick for two weeks and I've fallen behind in everything.", "expected": "wellbeing", "tricky": true},
+  {"text": "The library printer on level 2 keeps jamming.", "expected": "it_support", "tricky": true},
+  {"text": "The online quiz crashed halfway through and now it says I've used my only attempt.", "expected": "it_support", "tricky": true},
+  {"text": "Where do I pay my library fine?", "expected": "library", "tricky": true},
+  {"text": "I can't afford my textbooks this semester.", "expected": "wellbeing", "tricky": true},
+  {"text": "Hi, can someone help me please?", "expected": null, "tricky": true}
+]
