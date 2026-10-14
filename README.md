@@ -1,5 +1,7 @@
 # Build a local AI agent with a decision model
 
+![Workshop hero image](assets/afterjev.png)
+
 A two-hour, hands-on meetup session. You'll build a help desk agent that runs entirely on
 your laptop. A **decision model**, Strands Decider, reads each student message and answers
 questions about it: which team, how urgent, is it spam. It doesn't write text. It picks
